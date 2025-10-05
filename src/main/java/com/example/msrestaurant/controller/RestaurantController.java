@@ -5,7 +5,6 @@ import com.example.msrestaurant.dto.request.UpdateRestaurantRequest;
 import com.example.msrestaurant.dto.response.RestaurantResponse;
 import com.example.msrestaurant.service.RestaurantService;
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static lombok.AccessLevel.PRIVATE;
+
 @RestController
 @RequestMapping("/api/v1/restaurants")
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = PRIVATE, makeFinal = true)
 public class RestaurantController {
 
     RestaurantService restaurantService;

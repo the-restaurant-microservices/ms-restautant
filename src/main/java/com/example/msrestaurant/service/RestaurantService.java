@@ -5,8 +5,7 @@ import com.example.msrestaurant.dao.repository.RestaurantRepository;
 import com.example.msrestaurant.dto.request.CreateRestaurantRequest;
 import com.example.msrestaurant.dto.request.UpdateRestaurantRequest;
 import com.example.msrestaurant.dto.response.RestaurantResponse;
-import com.example.msrestaurant.mapper.RestaurantMapper;
-import lombok.AccessLevel;
+import com.example.msrestaurant.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,10 +18,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.msrestaurant.enums.Status.DELETED;
+import static com.example.msrestaurant.mapper.RestaurantMapper.RESTAURANT_MAPPER;
+import static lombok.AccessLevel.PRIVATE;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = PRIVATE, makeFinal = true)
 public class RestaurantService {
 
     RestaurantRepository restaurantRepository;
@@ -32,7 +33,7 @@ public class RestaurantService {
 
     @CachePut(value = "restaurants", key = "#result.id")
     public RestaurantResponse createRestaurant(CreateRestaurantRequest request) {
-        RestaurantEntity entity = RestaurantMapper.RESTAURANT_MAPPER.requestToEntity(request);
+        RestaurantEntity entity = RESTAURANT_MAPPER.requestToEntity(request);
 
         RestaurantEntity saved = restaurantRepository.save(entity);
 
@@ -40,17 +41,17 @@ public class RestaurantService {
                 saved.getId(), saved.getName(), saved.getAddress());
         kafkaTemplate.send(TOPIC, String.valueOf(saved.getId()), event);
 
-        return RestaurantMapper.RESTAURANT_MAPPER.entityToResponse(saved);
+        return RESTAURANT_MAPPER.entityToResponse(saved);
     }
 
     @CachePut(value = "restaurants", key = "#id")
     public RestaurantResponse updateRestaurant(Long id, UpdateRestaurantRequest request) {
         RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
 
-        RestaurantMapper.RESTAURANT_MAPPER.updateRestaurant(entity, request);
+        RESTAURANT_MAPPER.updateRestaurant(entity, request);
         restaurantRepository.save(entity);
-        return RestaurantMapper.RESTAURANT_MAPPER.entityToResponse(entity);
+        return RESTAURANT_MAPPER.entityToResponse(entity);
     }
 
     public List<RestaurantResponse> findAll() {
@@ -63,15 +64,15 @@ public class RestaurantService {
     @Cacheable(value = "restaurants", key = "#id")
     public RestaurantResponse findById(Long id) {
         RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
 
-        return RestaurantMapper.RESTAURANT_MAPPER.entityToResponse(entity);
+        return RESTAURANT_MAPPER.entityToResponse(entity);
     }
 
     @CacheEvict(value = "restaurants", key = "#id")
     public void deleteRestaurant(Long id) {
         RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
 
         entity.setStatus(DELETED);
         restaurantRepository.save(entity);
