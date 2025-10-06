@@ -4,7 +4,10 @@ import com.example.msrestaurant.dao.entity.RestaurantEntity;
 import com.example.msrestaurant.dto.request.CreateRestaurantRequest;
 import com.example.msrestaurant.dto.request.UpdateRestaurantRequest;
 import com.example.msrestaurant.dto.response.RestaurantResponse;
-import com.example.msrestaurant.enums.Status;
+import org.apache.commons.lang3.StringUtils;
+
+import static com.example.msrestaurant.enums.Status.ACTIVE;
+import static com.example.msrestaurant.enums.Status.IN_PROGRESS;
 
 public enum RestaurantMapper {
 
@@ -12,7 +15,7 @@ public enum RestaurantMapper {
 
     public RestaurantEntity requestToEntity(CreateRestaurantRequest request) {
         return RestaurantEntity.builder()
-                .status(Status.ACTIVE)
+                .status(ACTIVE)
                 .name(request.getName())
                 .address(request.getAddress())
                 .build();
@@ -28,11 +31,11 @@ public enum RestaurantMapper {
     }
 
     public void updateRestaurant(RestaurantEntity entity, UpdateRestaurantRequest request) {
-        entity.setStatus(Status.IN_PROGRESS);
-        if (request.getName() != null && !request.getName().isEmpty()) {
+        entity.setStatus(IN_PROGRESS);
+        if (StringUtils.isNotEmpty(request.getName())) {
             entity.setName(request.getName());
         }
-        if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+        if (StringUtils.isNotEmpty(request.getAddress())) {
             entity.setAddress(request.getAddress());
         }
     }

@@ -37,10 +37,10 @@ public class RestaurantEntity {
     @Enumerated(STRING)
     Status status;
 
-    private String name;
-    private String address;
+    String name;
+    String address;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 }
 

@@ -46,8 +46,7 @@ public class RestaurantService {
 
     @CachePut(value = "restaurants", key = "#id")
     public RestaurantResponse updateRestaurant(Long id, UpdateRestaurantRequest request) {
-        RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
+        RestaurantEntity entity = getRestaurantOrThrow(id);
 
         RESTAURANT_MAPPER.updateRestaurant(entity, request);
         restaurantRepository.save(entity);
@@ -63,18 +62,21 @@ public class RestaurantService {
 
     @Cacheable(value = "restaurants", key = "#id")
     public RestaurantResponse findById(Long id) {
-        RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
+        RestaurantEntity entity = getRestaurantOrThrow(id);
 
         return RESTAURANT_MAPPER.entityToResponse(entity);
     }
 
     @CacheEvict(value = "restaurants", key = "#id")
     public void deleteRestaurant(Long id) {
-        RestaurantEntity entity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Restaurant not found"));
+        RestaurantEntity entity = getRestaurantOrThrow(id);
 
         entity.setStatus(DELETED);
         restaurantRepository.save(entity);
+    }
+
+    private RestaurantEntity getRestaurantOrThrow(Long id) {
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Restaurant not found with id: " + id));
     }
 }

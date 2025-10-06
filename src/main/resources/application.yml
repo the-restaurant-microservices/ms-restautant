@@ -8,14 +8,11 @@ spring:
     password: AppPass!123
     driver-class-name: org.postgresql.Driver
 
-
-
   liquibase:
     change-log: classpath:/liquibase/changelog-master.yml
     enabled: true
     parameters:
       useSystemViews: false
-
 
   cache:
     type: redis
@@ -24,8 +21,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-
-
 
   kafka:
     bootstrap-servers: localhost:9092
